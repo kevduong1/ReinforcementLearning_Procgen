@@ -1,0 +1,31 @@
+Failure # 1 (occurred at 2021-10-28_22-45-14)
+Traceback (most recent call last):
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_env/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 812, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_env/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 767, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_env/lib/python3.8/site-packages/ray/_private/client_mode_hook.py", line 89, in wrapper
+    return func(*args, **kwargs)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_env/lib/python3.8/site-packages/ray/worker.py", line 1621, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(RayOutOfMemoryError): [36mray::DQN.train()[39m (pid=94759, ip=10.0.10.216, repr=DQN)
+ray._private.memory_monitor.RayOutOfMemoryError: More than 95% of the memory on node kevin-MS-7C95 is used (14.85 / 15.62 GB). The top 10 memory consumers are:
+
+PID	MEM	COMMAND
+74466	2.39GiB	ray::DQN.train()
+94759	1.85GiB	ray::DQN
+86468	1.21GiB	ray::DQN.train()
+69036	0.71GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_env/bin/python /home/kevin/Programming_Stuff/Reinfo
+69156	0.69GiB	ray::RolloutWorker
+74290	0.59GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_env/bin/python /home/kevin/Programming_Stuff/Reinfo
+94213	0.59GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_env/bin/python /home/kevin/Programming_Stuff/Reinfo
+86234	0.59GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_env/bin/python /home/kevin/Programming_Stuff/Reinfo
+68336	0.38GiB	/usr/share/code/code /home/kevin/.vscode/extensions/ms-python.vscode-pylance-2021.10.3/dist/server.b
+68022	0.23GiB	/usr/share/code/code --type=gpu-process --field-trial-handle=705610721288131945,9575147938968032136,
+
+In addition, up to 0.12 GiB of shared memory is currently being used by the Ray object store.
+---
+--- Tip: Use the `ray memory` command to list active objects in the cluster.
+--- To disable OOM exceptions, set RAY_DISABLE_MEMORY_MONITOR=1.
+---
+

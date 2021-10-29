@@ -1,64 +1,57 @@
-import os
-import ray
-import pickle
-import PIL
-from ray import tune
-from ray.rllib.agents.dqn import DQNTrainer
-from matplotlib import animation
-import matplotlib.pyplot as plt
-import gym
-from procgen import ProcgenGym3Env
+from ray.rllib.models.tf.misc import normc_initializer
+from ray.rllib.models.tf.tf_modelv2 import TFModelV2
+from ray.rllib.utils import try_import_tf
 
-def save_frames_as_gif(frames, path='./', filename='gym_animation.gif'):
+tf1, tf, tfv = try_import_tf()
 
-    #Mess with this to change frame size
-    plt.figure(figsize=(frames[0].shape[1] / 72.0, frames[0].shape[0] / 72.0), dpi=72)
+class DQN(TFModelV2):
+    def __init__(self, obs_space, action_space, num_outputs, model_config,
+                 name="atari_model"):
+        super(DQN, self).__init__(obs_space, action_space, num_outputs, model_config,
+                         name)
+        inputs = tf.keras.layers.Input(shape=(64,64,3), name='observations')
+        #inputs2 = tf.keras.layers.Input(shape=(1,), name='agent_indicator')
+        # Convolutions on the frames on the screen
+        layer1 = tf.keras.layers.Conv2D(
+                32,
+                [8, 8],
+                strides=(4, 4),
+                activation="relu",
+                data_format='channels_last')(inputs)
+        layer2 = tf.keras.layers.Conv2D(
+                64,
+                [4, 4],
+                strides=(2, 2),
+                activation="relu",
+                data_format='channels_last')(layer1)
+        layer3 = tf.keras.layers.Conv2D(
+                64,
+                [3, 3],
+                strides=(1, 1),
+                activation="relu",
+                data_format='channels_last')(layer2)
+        layer4 = tf.keras.layers.Flatten()(layer3)
+        #concat_layer = tf.keras.layers.Concatenate()([layer4, inputs2])
+        layer5 = tf.keras.layers.Dense(
+                512,
+                activation="relu",
+                kernel_initializer=normc_initializer(1.0))(layer4) # changed
+        action = tf.keras.layers.Dense(
+                num_outputs,
+                activation="linear",
+                name="actions",
+                kernel_initializer=normc_initializer(0.01))(layer5)
+        value_out = tf.keras.layers.Dense(
+                1,
+                activation=None,
+                name="value_out",
+                kernel_initializer=normc_initializer(0.01))(layer5)
+        self.base_model = tf.keras.Model(inputs, [action, value_out])
+        #self.register_variables(self.base_model.variables)
 
-    patch = plt.imshow(frames[0])
-    plt.axis('off')
+    def forward(self, input_dict, state, seq_lens):
+        model_out, self._value_out = self.base_model(input_dict["obs"])
+        return model_out, state
 
-    def animate(i):
-        patch.set_data(frames[i])
-
-    anim = animation.FuncAnimation(plt.gcf(), animate, frames = len(frames), interval=50)
-    anim.save(path + filename, writer='imagemagick', fps=60)
-
-
-# print file name of files in checkpoint folder of this current folder
-"""
-for file in os.listdir("./checkpoint/DQN_2021-10-28_15-53-15/DQN_CartPole-v0_12604_00000_0_2021-10-28_15-53-15/checkpoint_000005"):
-    print(file)
-"""
-
-config_path = os.path.join("./checkpoint/DQN_2021-10-28_15-53-15/DQN_CartPole-v0_12604_00000_0_2021-10-28_15-53-15/", "params.pkl")
-with open(config_path, "rb") as f:
-    config = pickle.load(f)
-
-config['num_gpus']=0
-config['num_workers']=1
-
-Trainer = DQNTrainer
-RLAgent = Trainer(env="CartPole-v0", config=config)
-RLAgent.restore("./checkpoint/DQN_2021-10-28_15-53-15/DQN_CartPole-v0_12604_00000_0_2021-10-28_15-53-15/checkpoint_000005/checkpoint-5")
-env = gym.make('CartPole-v0')
-num_steps = 0   # one num_step includes all agent steps 
-frames = []
-obs = env.reset()
-total_reward = 0
-total_runs = 0
-while num_steps < 500:
-        num_steps += 1
-        frames.append(env.render(mode="rgb_array"))
-        #action = RLAgent.compute_single_action(obs)
-        action = env.action_space.sample()
-        obs, reward, done, info = env.step(action)
-        total_reward += reward
-        if done:
-            total_runs += 1
-            env.reset()
-
-
-print(total_reward/total_runs)
-
-
-#save_frames_as_gif(frames)
+    def value_function(self):
+        return tf.reshape(self._value_out, [-1])

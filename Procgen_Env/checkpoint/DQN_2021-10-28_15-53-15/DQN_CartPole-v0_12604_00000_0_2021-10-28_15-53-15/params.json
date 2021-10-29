@@ -1,4 +1,0 @@
-{
-  "env": "CartPole-v0",
-  "framework": "torch"
-}
