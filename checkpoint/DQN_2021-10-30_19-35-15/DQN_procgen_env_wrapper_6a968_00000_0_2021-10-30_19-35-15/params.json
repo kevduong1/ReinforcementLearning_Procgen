@@ -1,0 +1,15 @@
+{
+  "double_q": true,
+  "dueling": true,
+  "env": "procgen_env_wrapper",
+  "final_prioritized_replay_beta": 1.0,
+  "framework": "tf",
+  "gamma": 0.99,
+  "model": {
+    "custom_model": "DQN_c"
+  },
+  "prioritized_replay": true,
+  "prioritized_replay_alpha": 0.5,
+  "prioritized_replay_beta": 0.4,
+  "render_env": false
+}

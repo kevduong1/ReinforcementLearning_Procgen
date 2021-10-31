@@ -6,11 +6,10 @@ tf1, tf, tfv = try_import_tf()
 
 class DQN(TFModelV2):
     def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name="atari_model"):
+                 name="DQN_Model"):
         super(DQN, self).__init__(obs_space, action_space, num_outputs, model_config,
                          name)
         inputs = tf.keras.layers.Input(shape=(64,64,3), name='observations')
-        #inputs2 = tf.keras.layers.Input(shape=(1,), name='agent_indicator')
         # Convolutions on the frames on the screen
         layer1 = tf.keras.layers.Conv2D(
                 32,
@@ -31,11 +30,10 @@ class DQN(TFModelV2):
                 activation="relu",
                 data_format='channels_last')(layer2)
         layer4 = tf.keras.layers.Flatten()(layer3)
-        #concat_layer = tf.keras.layers.Concatenate()([layer4, inputs2])
         layer5 = tf.keras.layers.Dense(
                 512,
                 activation="relu",
-                kernel_initializer=normc_initializer(1.0))(layer4) # changed
+                kernel_initializer=normc_initializer(1.0))(layer4) 
         action = tf.keras.layers.Dense(
                 num_outputs,
                 activation="linear",
