@@ -1,3 +1,4 @@
+from ray.rllib.models import ModelCatalog
 from ray.rllib.models.tf.misc import normc_initializer
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.utils import try_import_tf
@@ -53,3 +54,40 @@ class DQN(TFModelV2):
 
     def value_function(self):
         return tf.reshape(self._value_out, [-1])
+
+"""
+Register custom DQN model and set up configs
+"""
+# https://github.com/ray-project/ray/blob/master/rllib/examples/fractional_gpus.py
+class DQN_Model():
+    def __init__(self):
+        
+        ModelCatalog.register_custom_model("DQN_c", DQN)
+
+        self.config ={
+        "env": "procgen_env_wrapper",
+        "framework": "tf",
+        "model": { "custom_model": "DQN_c", "framestack": True},
+
+        "gamma": 0.99,
+        "double_q": True,
+        "dueling": True,  
+        "prioritized_replay": True,
+        "prioritized_replay_alpha": 0.5,
+        "prioritized_replay_beta": 0.4,
+        "final_prioritized_replay_beta": 1.0,
+        "prioritized_replay_beta_annealing_timesteps": 2000000,
+
+        "num_gpus": 1,
+        "num_workers": 8,
+        "num_envs_per_worker": 1,
+
+        "rollout_fragment_length": 32,
+        "train_batch_size": 512,
+        "target_network_update_freq": 50000,
+        "timesteps_per_iteration": 1000000,
+        "learning_starts": 1000000, 
+        }
+
+    def get_config(self):
+        return self.config

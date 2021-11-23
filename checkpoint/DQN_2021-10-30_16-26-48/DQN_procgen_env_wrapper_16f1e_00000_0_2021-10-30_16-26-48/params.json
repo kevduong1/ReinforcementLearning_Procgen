@@ -1,7 +1,0 @@
-{
-  "env": "procgen_env_wrapper",
-  "framework": "tf",
-  "model": {
-    "custom_model": "DQN_c"
-  }
-}

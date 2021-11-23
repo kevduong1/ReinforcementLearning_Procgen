@@ -1,0 +1,48 @@
+Failure # 1 (occurred at 2021-11-22_18-35-35)
+Traceback (most recent call last):
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/tune/trial_runner.py", line 890, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py", line 788, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/worker.py", line 1627, in get
+    raise value
+ray.exceptions.RayActorError: The actor died because of an error raised in its creation task, [36mray::DQN.__init__()[39m (pid=1431577, ip=192.168.29.145)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 137, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 623, in __init__
+    super().__init__(config, logger_creator)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/tune/trainable.py", line 107, in __init__
+    self.setup(copy.deepcopy(self.config))
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 147, in setup
+    super().setup(config)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 776, in setup
+    self._init(self.config, self.env_creator)
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer_template.py", line 171, in _init
+    self.workers = self._make_workers(
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/agents/trainer.py", line 858, in _make_workers
+    return WorkerSet(
+  File "/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/lib/python3.8/site-packages/ray/rllib/evaluation/worker_set.py", line 87, in __init__
+    remote_spaces = ray.get(self.remote_workers(
+ray.exceptions.RayActorError: The actor died because of an error raised in its creation task, [36mray::RolloutWorker.__init__()[39m (pid=1431566, ip=192.168.29.145)
+ray._private.memory_monitor.RayOutOfMemoryError: More than 95% of the memory on node kevin-MS-7C95 is used (15.05 / 15.62 GB). The top 10 memory consumers are:
+
+PID	MEM	COMMAND
+1421923	4.88GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/bin/python /home/kevin/Programming_Stuff/Reinfo
+1420737	3.19GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/bin/python /home/kevin/Programming_Stuff/Reinfo
+1422146	0.64GiB	ray::RolloutWorker
+1431070	0.54GiB	/home/kevin/Programming_Stuff/Enter/envs/procgen_gpu/bin/python /home/kevin/Programming_Stuff/Reinfo
+1420855	0.3GiB	ray::RolloutWorker
+1418888	0.25GiB	/usr/share/code/code /home/kevin/.vscode/extensions/ms-python.vscode-pylance-2021.11.2/dist/server.b
+1431577	0.21GiB	ray::DQN.__init__()
+1431580	0.2GiB	ray::IDLE
+1431573	0.2GiB	ray::IDLE
+1431578	0.2GiB	ray::IDLE
+
+In addition, up to 0.11 GiB of shared memory is currently being used by the Ray object store.
+---
+--- Tip: Use the `ray memory` command to list active objects in the cluster.
+--- To disable OOM exceptions, set RAY_DISABLE_MEMORY_MONITOR=1.
+---
+
