@@ -5,8 +5,8 @@ class procGenConfig():
     def __init__(self,type):
         self.type = type
         self.config = {
-        "num_levels" : 0,  # The number of unique levels that can be generated. Set to 0 to use unlimited levels.
-        "env_name" : "dodgeball",  # Name of environment, or comma-separate list of environment names to instantiate as each env in the VecEnv
+        "num_levels" : 1,  # The number of unique levels that can be generated. Set to 0 to use unlimited levels.
+        "env_name" : "chaser",  # Name of environment, or comma-separate list of environment names to instantiate as each env in the VecEnv
         "start_level" : 0,  # The lowest seed that will be used to generated levels. 'start_level' and 'num_levels' fully specify the set of possible levels
         "paint_vel_info" : False,  # Paint player velocity info in the top left corner. Only supported by certain games.
         "use_generated_assets" : False,  # Use randomly generated assets in place of human designed assets
