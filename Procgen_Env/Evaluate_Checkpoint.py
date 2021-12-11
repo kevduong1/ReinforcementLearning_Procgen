@@ -1,6 +1,7 @@
 import os
 import pickle
 import PIL
+import pandas as pd
 from ray.rllib.agents.dqn import DQNTrainer
 from ray.rllib.agents.ppo import PPOTrainer
 from Util.procgen_wrapper import ProcgenEnvWrapper
@@ -9,21 +10,25 @@ from Models.PPO_Model import PPO
 from ray.rllib.models import ModelCatalog
 
 
+# ================= configs =================
 algorithmType = "PPO"
-training_steps = "50" # in millions
-level_type = "multi-level"
-#level_type = "one-level"
+training_steps = "200" # in millions
+level_type = "multi-lvl"
+#level_type = "1-lvl"
+#level_type = "500-lvl"
+#level_type = "hybrid-lvl"
+# ===========================================
+# for creating csv
+data_frame = pd.DataFrame(columns=['Episode', 'Reward'])
 
-
-# TODO plot graphs for rewards
-
+file_result_name = algorithmType + "_" + level_type + "_" + training_steps + "mil"
 
 env = ProcgenEnvWrapper("training")
 
 pathstring = "{0}/{0}_{1}_200mil/".format(algorithmType,level_type)
 
 # TODO add pipelining code for evaluation
-config_path = os.path.join("./Procgen_Env/checkpoint/" + pathstring, "params.pkl")
+config_path = os.path.join("checkpoint/" + pathstring, "params.pkl")
 with open(config_path, "rb") as f:
     config = pickle.load(f)
 
@@ -41,7 +46,8 @@ elif algorithmType == "PPO":
 
 
 RLAgent = Trainer(env="procgen_env_wrapper", config=config)
-RLAgent.restore("./Procgen_Env/checkpoint/" + pathstring + "checkpoint_0000{0}/checkpoint-{0}".format(training_steps))
+RLAgent.restore("checkpoint/" + pathstring + "checkpoint_000{0}/checkpoint-{0}".format(training_steps))
+
 
 
 
@@ -54,7 +60,7 @@ total_reward = 0
 best_score = 0
 best_frame_list = []
 episode_score = 0   
-while num_games < 20:
+while num_games < 500:
     action = RLAgent.compute_action(obs)
     obs, reward, done, info = env.step(action)
 
@@ -66,22 +72,23 @@ while num_games < 20:
         num_games += 1
         total_reward += episode_score
         avg = total_reward / num_games
+        # print the data type of num_games
+
+        #data_frame = data_frame.append({'Episode': num_games, 'Reward': avg}, ignore_index=True)
         if episode_score > best_score:
             best_score = episode_score
-            best_frame_list = []
-            best_frame_list.extend(frame_buffer)
+            best_frame_list = frame_buffer + best_frame_list
             print(str(num_games) + " | episode score: " + str(episode_score) + "| avg score: " + str(avg) + " - new best score=" + str(best_score))
         else:
             print(str(num_games) + " | episode score: " + str(episode_score) + " | avg score: " + str(avg))
-
-
-        
         # reset the environment
         env.reset()
         frame_buffer = []
         episode_score = 0
 
-# Save gif
-# TODO: add pipeline for saving code to location with automated naming
-best_frame_list[0].save(f"procgen_steps8.gif", save_all=True, append_images=best_frame_list[1:], duration=3, loop=0)
+
+#data_frame['Episode'] = data_frame['Episode'].astype(int)
+
+#data_frame.to_csv(f'results/evaluation_csv/' + file_result_name, index=False)
+best_frame_list[0].save(f"results/gif_folder/" + file_result_name + ".gif", save_all=True, append_images=best_frame_list[1:700], duration=1, loop=0)
 

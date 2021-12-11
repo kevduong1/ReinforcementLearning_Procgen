@@ -79,7 +79,7 @@ class DQN_Model():
         "prioritized_replay_beta_annealing_timesteps": 2000000,
 
         "num_gpus": 1,
-        "num_workers": 10,
+        "num_workers": 22,
         "num_envs_per_worker": 1,
 
         "rollout_fragment_length": 32,
